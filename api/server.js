@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 import dotenv from "dotenv";
 import userRouter from "./routes/userRouter.js";
 import authRouter from "./routes/authRouter.js";
@@ -9,6 +10,7 @@ const app=express();
 
 app.use(express.json());
 app.use(express.urlencoded());
+app.use(cors())
 
 // routers
 app.use("/api/v1/",userRouter);
