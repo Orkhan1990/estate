@@ -1,19 +1,22 @@
 import { useState } from "react";
 import { Link,useNavigate } from "react-router-dom";
 import { useCookies } from 'react-cookie';
+import { useDispatch,useSelector } from "react-redux";
+import { signInFailure,signInSuccess,signInStart } from "../features/userSlice";
 
 
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [cookie,setCookie]=useCookies(["access_token"]);
   const navigate=useNavigate();
+  const dispatch=useDispatch();
+  const {error,loading}=useSelector((state)=>state.user)
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    dispatch(signInStart())
     try {
       const res = await fetch("http://localhost:3007/api/v1/signIn", {
         method: "POST",
@@ -25,20 +28,17 @@ const SignIn = () => {
 
       const data = await res.json();
       if (data.success==false) {
-        setError(data.message);
-        setLoading(false);
+         dispatch(signInFailure(data.message))
         return;
       }
 
-      setLoading(false);
-      setError(null);
+       dispatch(signInSuccess(data));
       navigate("/");
-      setCookie('access_token',data.token,{httpOnly:true,secure:false})
+      setCookie('access_token',data.token)
       console.log(cookie);
       console.log("salam")
     } catch (error) {
-      setLoading(false);
-      setError(error.message);
+        dispatch(signInFailure(error.message))
     }
   };
 
