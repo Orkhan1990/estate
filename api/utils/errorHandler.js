@@ -1,5 +1,5 @@
 
-export const errorHandle=async(statusCode,message)=>{
+export const errorHandle=(statusCode,message)=>{
     const error=new Error();
     error.statusCode=statusCode;
     error.message=message;
