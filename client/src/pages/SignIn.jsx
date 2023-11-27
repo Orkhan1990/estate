@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { Link,useNavigate } from "react-router-dom";
+import { useCookies } from 'react-cookie';
+
+
+
 const SignIn = () => {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [cookie,setCookie]=useCookies(["access_token"]);
   const navigate=useNavigate();
 
   const handleSubmit = async (e) => {
@@ -19,14 +24,18 @@ const SignIn = () => {
       });
 
       const data = await res.json();
-      if (data.success ==false) {
+      if (data.success==false) {
         setError(data.message);
         setLoading(false);
         return;
       }
+
       setLoading(false);
       setError(null);
       navigate("/");
+      setCookie('access_token',data.token,{httpOnly:true,secure:false})
+      console.log(cookie);
+      console.log("salam")
     } catch (error) {
       setLoading(false);
       setError(error.message);
