@@ -23,11 +23,11 @@ export const signIn=async(req,res,next)=>{
         const{email,password}=req.body;
         const validUser=await User.findOne({email});
         if(!validUser){
-            res.status(401).json(errorHandle(401,"Email is not correct!"))
+            return next(errorHandle(401,"Email is not correct!"))
         }
         const comparePassword=await bcrypt.compare(password,validUser.password);
         if(!comparePassword){
-            res.status(401).json(errorHandle(401,"Password is not correct!"))
+            return next(errorHandle(401,"Password is not correct!"))
         }
         const token= jwtToken.sign({id:validUser._id},process.env.JWTSECRET);
        const {password:pass,...rest}=validUser._doc;
