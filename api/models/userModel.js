@@ -10,6 +10,10 @@ const userSchema=new mongoose.Schema({
         required:true,
         unique:true
     },
+    avatar:{
+      type:String,
+      default:"https://www.pngitem.com/pimgs/m/504-5040528_empty-profile-picture-png-transparent-png.png"
+    },
     password:{
         type:String,
         required:true

@@ -3,6 +3,7 @@ import { Link,useNavigate } from "react-router-dom";
 import { useCookies } from 'react-cookie';
 import { useDispatch,useSelector } from "react-redux";
 import { signInFailure,signInSuccess,signInStart } from "../features/userSlice";
+import OAuth from "../components/OAuth";
 
 
 
@@ -36,7 +37,6 @@ const SignIn = () => {
       navigate("/");
       setCookie('access_token',data.token)
       console.log(cookie);
-      console.log("salam")
     } catch (error) {
         dispatch(signInFailure(error.message))
     }
@@ -71,9 +71,7 @@ const SignIn = () => {
           >
             {loading ? "Loading..." : "Sign In"}
           </button>
-          <button className="bg-red-700 text-white rounded-lg p-2 uppercase hover:opacity-95 disabled:opacity-80">
-            Continue with google
-          </button>
+          <OAuth/>
         </form>
   
         <div className="flex gap-2 mt-5">
