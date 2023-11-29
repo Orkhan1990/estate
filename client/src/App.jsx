@@ -5,17 +5,23 @@ import Profile from "./pages/Profile";
 import SignIn from "./pages/SignIn";
 import Header from "./components/Header";
 import SignUp from "./pages/SignUp";
+import PrivateRouter from "./components/PrivateRouter";
 function App() {
   return (
     <BrowserRouter>
-    <Header/>
+      <Header />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route element={<PrivateRouter />}>
+          <Route path="/" element={<Home/>} />
+        </Route>
+        <Route element={<PrivateRouter />}>
+          <Route path="/about" element={<About/>} />
+        </Route>
+        <Route element={<PrivateRouter />}>
+          <Route path="/profile" element={<Profile/>} />
+        </Route>
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
-
       </Routes>
     </BrowserRouter>
   );

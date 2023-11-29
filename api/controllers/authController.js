@@ -41,11 +41,10 @@ export const signIn=async(req,res,next)=>{
 
 export const google=async(req,res,next)=>{
     try {
-        const user=await User.findOne({email:req.body.emial});
+        const user=await User.findOne({email:req.body.email});
         if(user){
             const token= jwtToken.sign({id:user._id},process.env.JWTSECRET);
             const{password:pass,...rest}=user._doc;
-            res.cookie('access_token',token,{httpOnly:true});
             res.status(201).json({rest,token});
         }
           const generatePassword=Math.random().toString(36).slice(-8)+Math.random().toString(36).slice(-8);
