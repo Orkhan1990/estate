@@ -54,16 +54,39 @@ const Profile = () => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setFormData({ ...formData, avatar: downloadURL });
+          setFormData({...formData, avatar: downloadURL });
+          console.log(downloadURL);
         });
       }
     );
   };
+    console.log(formData);
+   const handleChange=(e)=>{
+     setFormData({...formData,[e.target.id]:e.target.value})
+   }
 
+   const handleSubmit=async(e)=>{
+    e.preventDefault();
+    try {
+      const res = await fetch(`http://localhost:3007/api/v1/update/:${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data=await res.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+    
+      
+   }
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
-      <form className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           onChange={(e) => setFile(e.target.files[0])}
           type="file"
@@ -87,6 +110,7 @@ const Profile = () => {
           }
         </p>
         <input
+          onChange={handleChange}
           type="text"
           placeholder="username"
           className="border p-3 rounded-lg"
@@ -94,6 +118,7 @@ const Profile = () => {
           defaultValue="orkhan"
         />
         <input
+          onChange={handleChange}
           type="email"
           placeholder="email"
           className="border p-3 rounded-lg"
@@ -101,6 +126,7 @@ const Profile = () => {
           defaultValue="orkhan@gmail.com"
         />
         <input
+          onChange={handleChange}
           type="password"
           placeholder="password"
           className="border p-3 rounded-lg"
