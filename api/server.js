@@ -4,15 +4,21 @@ import cors from "cors";
 import dotenv from "dotenv";
 import userRouter from "./routes/userRouter.js";
 import authRouter from "./routes/authRouter.js";
-import cookieParser from "cookie-parser"
+import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
 dotenv.config();
 
 const app=express();
 
 app.use(express.json());
-app.use(express.urlencoded());
-app.use(cors())
+app.use(express.urlencoded({extended:true}));
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials:true
+}))
 app.use(cookieParser())
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}))
 
 // routers
 app.use("/api/v1/",userRouter);

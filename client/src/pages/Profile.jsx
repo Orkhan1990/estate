@@ -8,6 +8,12 @@ import {
 } from "firebase/storage";
 import { app } from "../firebase.js";
 import {
+  deleteFailure,
+  deleteStart,
+  deleteSuccess,
+  signOutFailure,
+  signOutStart,
+  signOutSuccess,
   updateFailure,
   updateStart,
   updateSuccess,
@@ -37,7 +43,9 @@ const Profile = () => {
   console.log(filePerc);
   console.log(fileError);
   console.log(error);
+  console.log(currentUser);
 
+  
   useEffect(() => {
     if (file) {
       handleFileUpload(file);
@@ -49,7 +57,7 @@ const Profile = () => {
     const fileName = new Date().getTime() + file.name;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, file);
-
+   
     uploadTask.on(
       "state_changed",
       (snapshot) => {
@@ -101,6 +109,41 @@ const Profile = () => {
       console.log(error);
     }
   };
+
+  const handleDelete=async ()=>{
+    dispatch(deleteStart())
+    try {
+      const res=await fetch(`http://localhost:3007/api/v1/delete/:${currentUser._id}`,
+      {
+        method:"DELETE"
+      }
+      )
+      const data=await res.json();
+      if(data.success===false){
+        dispatch(deleteFailure(data.message))
+      }
+      dispatch(deleteSuccess(data))
+      
+    } catch (error) {
+      dispatch(deleteFailure(error.message))
+    }
+  }
+
+ const handleSignOut=async()=>{
+  dispatch(signOutStart());
+  try {
+
+    const res=await fetch("http://localhost:3007/api/v1/signOut");
+    const data=await res.json();
+    if(data.success===false){
+      dispatch(signOutFailure(data.message))
+    }
+    dispatch(signOutSuccess(data));
+  } catch (error) {
+    dispatch(signOutFailure(error.message))
+  }
+ }
+
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -135,7 +178,7 @@ const Profile = () => {
           placeholder="username"
           className="border p-3 rounded-lg"
           id="username"
-          defaultValue={currentUser.username}
+          defaultValue={currentUser.rest.username}
         />
         <input
           onChange={handleChange}
@@ -143,7 +186,7 @@ const Profile = () => {
           placeholder="email"
           className="border p-3 rounded-lg"
           id="email"
-          defaultValue={currentUser.email}
+          defaultValue={currentUser.rest.email}
         />
         <input
           onChange={handleChange}
@@ -160,8 +203,8 @@ const Profile = () => {
         </button>
       </form>
       <div className="flex justify-between mt-5">
-        <span className="text-red-700 cursor-pointer">Delete</span>
-        <span className="text-red-700 cursor-pointer">Sign out</span>
+        <span onClick={handleDelete} className="text-red-700 cursor-pointer">Delete</span>
+        <span onClick={handleSignOut} className="text-red-700 cursor-pointer">Sign out</span>
       </div>
       <p className="text-red-700 mt">{error?error:""}</p>
       <p className="text-green-700 mt">{ifUpdatedSuccess?"User information updated successfuly!":""}</p>
