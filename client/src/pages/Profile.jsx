@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 import {
   getDownloadURL,
@@ -6,7 +6,12 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import {app} from "../firebase.js";
+import { app } from "../firebase.js";
+import {
+  updateFailure,
+  updateStart,
+  updateSuccess,
+} from "../features/userSlice.js";
 
 // firebase storage
 // service firebase.storage {
@@ -21,13 +26,17 @@ import {app} from "../firebase.js";
 
 const Profile = () => {
   const fileRef = useRef(null);
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
   const [file, setFile] = useState(undefined);
   const [filePerc, setFilePerc] = useState(0);
   const [fileError, setFileError] = useState(false);
   const [formData, setFormData] = useState({});
+  const [ifUpdatedSuccess,setIfUpdatedSuccess]=useState(false);
+
+  const dispatch = useDispatch();
   console.log(filePerc);
   console.log(fileError);
+  console.log(error);
 
   useEffect(() => {
     if (file) {
@@ -54,35 +63,44 @@ const Profile = () => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setFormData({...formData, avatar: downloadURL });
+          setFormData({ ...formData, avatar: downloadURL });
           console.log(downloadURL);
         });
       }
     );
   };
-    console.log(formData);
-   const handleChange=(e)=>{
-     setFormData({...formData,[e.target.id]:e.target.value})
-   }
+  console.log(formData);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
 
-   const handleSubmit=async(e)=>{
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    dispatch(updateStart());
     try {
-      const res = await fetch(`http://localhost:3007/api/v1/update/:${currentUser._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      const data=await res.json();
+      const res = await fetch(
+        `http://localhost:3007/api/v1/update/:${currentUser._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(updateFailure(data.message));
+        return;
+      }
+      dispatch(updateSuccess(data));
+      setIfUpdatedSuccess(true)
       console.log(data);
     } catch (error) {
+      dispatch(updateFailure(error.message));
       console.log(error);
     }
-    
-      
-   }
+  };
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -96,7 +114,7 @@ const Profile = () => {
         />
         <img
           onClick={() => fileRef.current.click()}
-          src={currentUser.rest.avatar}
+          src={formData.avatar || currentUser.rest.avatar}
           alt="profile"
           className="rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2"
         />
@@ -105,9 +123,11 @@ const Profile = () => {
             <span className="text-red-700">Error Image Upload</span>
           ) : filePerc > 0 && filePerc < 100 ? (
             <span className="text-slate-700">{`Uploading ${filePerc}%`}</span>
-          ) : ( filePerc===100?
-            <span className="text-green-700">Image Successfuly Completed</span>:"")
-          }
+          ) : filePerc === 100 ? (
+            <span className="text-green-700">Image Successfuly Completed</span>
+          ) : (
+            ""
+          )}
         </p>
         <input
           onChange={handleChange}
@@ -115,7 +135,7 @@ const Profile = () => {
           placeholder="username"
           className="border p-3 rounded-lg"
           id="username"
-          defaultValue="orkhan"
+          defaultValue={currentUser.username}
         />
         <input
           onChange={handleChange}
@@ -123,7 +143,7 @@ const Profile = () => {
           placeholder="email"
           className="border p-3 rounded-lg"
           id="email"
-          defaultValue="orkhan@gmail.com"
+          defaultValue={currentUser.email}
         />
         <input
           onChange={handleChange}
@@ -132,14 +152,20 @@ const Profile = () => {
           className="border p-3 rounded-lg"
           id="password"
         />
-        <button className=" bg-slate-700 text-white rounded-lg p-3 hover:opacity-95 disabled:opacity-80 uppercase">
-          update
+        <button
+          disabled={loading}
+          className=" bg-slate-700 text-white rounded-lg p-3 hover:opacity-95 disabled:opacity-80 uppercase"
+        >
+          {loading ? "Loading....." : "Update"}
         </button>
       </form>
       <div className="flex justify-between mt-5">
         <span className="text-red-700 cursor-pointer">Delete</span>
         <span className="text-red-700 cursor-pointer">Sign out</span>
       </div>
+      <p className="text-red-700 mt">{error?error:""}</p>
+      <p className="text-green-700 mt">{ifUpdatedSuccess?"User information updated successfuly!":""}</p>
+
     </div>
   );
 };
