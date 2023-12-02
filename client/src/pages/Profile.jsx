@@ -18,6 +18,7 @@ import {
   updateStart,
   updateSuccess,
 } from "../features/userSlice.js";
+import { Link } from "react-router-dom";
 
 // firebase storage
 // service firebase.storage {
@@ -37,7 +38,7 @@ const Profile = () => {
   const [filePerc, setFilePerc] = useState(0);
   const [fileError, setFileError] = useState(false);
   const [formData, setFormData] = useState({});
-  const [ifUpdatedSuccess,setIfUpdatedSuccess]=useState(false);
+  const [ifUpdatedSuccess, setIfUpdatedSuccess] = useState(false);
 
   const dispatch = useDispatch();
   console.log(filePerc);
@@ -45,7 +46,6 @@ const Profile = () => {
   console.log(error);
   console.log(currentUser);
 
-  
   useEffect(() => {
     if (file) {
       handleFileUpload(file);
@@ -57,7 +57,7 @@ const Profile = () => {
     const fileName = new Date().getTime() + file.name;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, file);
-   
+
     uploadTask.on(
       "state_changed",
       (snapshot) => {
@@ -102,7 +102,7 @@ const Profile = () => {
         return;
       }
       dispatch(updateSuccess(data));
-      setIfUpdatedSuccess(true)
+      setIfUpdatedSuccess(true);
       console.log(data);
     } catch (error) {
       dispatch(updateFailure(error.message));
@@ -110,39 +110,38 @@ const Profile = () => {
     }
   };
 
-  const handleDelete=async ()=>{
-    dispatch(deleteStart())
+  const handleDelete = async () => {
+    dispatch(deleteStart());
     try {
-      const res=await fetch(`http://localhost:3007/api/v1/delete/:${currentUser._id}`,
-      {
-        method:"DELETE"
+      const res = await fetch(
+        `http://localhost:3007/api/v1/delete/:${currentUser._id}`,
+        {
+          method: "DELETE",
+        }
+      );
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteFailure(data.message));
       }
-      )
-      const data=await res.json();
-      if(data.success===false){
-        dispatch(deleteFailure(data.message))
-      }
-      dispatch(deleteSuccess(data))
-      
+      dispatch(deleteSuccess(data));
     } catch (error) {
-      dispatch(deleteFailure(error.message))
+      dispatch(deleteFailure(error.message));
     }
-  }
+  };
 
- const handleSignOut=async()=>{
-  dispatch(signOutStart());
-  try {
-
-    const res=await fetch("http://localhost:3007/api/v1/signOut");
-    const data=await res.json();
-    if(data.success===false){
-      dispatch(signOutFailure(data.message))
+  const handleSignOut = async () => {
+    dispatch(signOutStart());
+    try {
+      const res = await fetch("http://localhost:3007/api/v1/signOut");
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(signOutFailure(data.message));
+      }
+      dispatch(signOutSuccess(data));
+    } catch (error) {
+      dispatch(signOutFailure(error.message));
     }
-    dispatch(signOutSuccess(data));
-  } catch (error) {
-    dispatch(signOutFailure(error.message))
-  }
- }
+  };
 
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -201,14 +200,24 @@ const Profile = () => {
         >
           {loading ? "Loading....." : "Update"}
         </button>
+        <button className=" bg-green-700 text-white rounded-lg p-3 hover:opacity-95 disabled:opacity-80 uppercase">
+        <Link to="/listing">
+          Create Listing
+        </Link>
+        </button>
       </form>
       <div className="flex justify-between mt-5">
-        <span onClick={handleDelete} className="text-red-700 cursor-pointer">Delete</span>
-        <span onClick={handleSignOut} className="text-red-700 cursor-pointer">Sign out</span>
+        <span onClick={handleDelete} className="text-red-700 cursor-pointer">
+          Delete
+        </span>
+        <span onClick={handleSignOut} className="text-red-700 cursor-pointer">
+          Sign out
+        </span>
       </div>
-      <p className="text-red-700 mt">{error?error:""}</p>
-      <p className="text-green-700 mt">{ifUpdatedSuccess?"User information updated successfuly!":""}</p>
-
+      <p className="text-red-700 mt">{error ? error : ""}</p>
+      <p className="text-green-700 mt">
+        {ifUpdatedSuccess ? "User information updated successfuly!" : ""}
+      </p>
     </div>
   );
 };
