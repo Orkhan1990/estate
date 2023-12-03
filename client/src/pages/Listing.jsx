@@ -5,7 +5,7 @@ const Listing = () => {
         Create a Listing
       </h1>
 
-      <form className="flex flex-col sm:flex-row">
+      <form className="flex flex-col sm:flex-row gap-2">
         <div className="flex flex-col gap-4 flex-1">
           <input
             type="text"
@@ -110,6 +110,16 @@ const Listing = () => {
                 <span className="text-xs">($/month)</span>
               </div>
             </div>
+          </div>
+        </div>
+        <div className="flex flex-col flex-1">
+          <p className="font-semibold">
+            Images:
+            <span className="font-normal text-slate-500 ml-2">The first image will be the cover(max 6)</span>
+          </p>
+          <div className="flex">
+              <input className="p-3 border border-gray-300 rounded w-full" type="file" id="images" accept="image/*"  multiple/>
+              <button className="p-3 border rounded border-green-700 text-green-700 uppercase hover:shadow-lg disabled:opacity-80">Upload</button>
           </div>
         </div>
       </form>
