@@ -118,9 +118,10 @@ const Listing = () => {
             <span className="font-normal text-slate-500 ml-2">The first image will be the cover(max 6)</span>
           </p>
           <div className="flex">
-              <input className="p-3 border border-gray-300 rounded w-full" type="file" id="images" accept="image/*"  multiple/>
+              <input className="p-3 border border-gray-300 rounded w-full mr-5" type="file" id="images" accept="image/*"  multiple/>
               <button className="p-3 border rounded border-green-700 text-green-700 uppercase hover:shadow-lg disabled:opacity-80">Upload</button>
           </div>
+          <button className="text-white bg-slate-700 uppercase  rounded-lg p-3 mt-5 hover:opacity-95 disabled:opacity-80">Create listing</button>
         </div>
       </form>
     </main>
