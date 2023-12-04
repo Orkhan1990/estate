@@ -1,4 +1,59 @@
+import { useState } from "react";
+import {getDownloadURL, getStorage, ref, uploadBytesResumable} from 'firebase/storage';
+import {app} from '../firebase.js';
+
+
+
+
+
 const Listing = () => {
+  const[files,setFiles]=useState([]);
+  const[formData,setFormData]=useState({
+    imageUrls:[]
+  })
+
+  console.log(formData)
+
+  const handleFiles=()=>{
+    const promises=[];
+    if(files.length>0&&files.length<7)
+    {
+
+      for(let i=0;i<files.length;i++)
+      {
+        promises.push(storeImage(files[i]));
+      }
+      Promise.all(promises).then((urls)=>{
+         setFormData({...formData,imageUrls:formData.imageUrls.concat(urls)})
+      })
+    }
+
+  }
+
+  const storeImage=async(file)=>{
+    return new Promise((resolve,reject)=>{
+      const storage=getStorage(app);
+      const fileName=new Date().getDate()+file.name;
+      const storageRef=ref(storage,fileName);
+      const uploadTask=uploadBytesResumable(storageRef,file);
+      uploadTask.on(
+        'state_changed',
+        (snapshot)=>{
+           const progress=(snapshot.bytesTransferred/snapshot.totalBytes)*100;
+           console.log(progress);
+        },
+        (error)=>{
+          reject(error)
+        },
+        ()=>{
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL)=>{
+            resolve(downloadURL)
+          });
+        }
+      )
+    })
+  }
+
   return (
     <main className="p-3 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">
@@ -118,8 +173,8 @@ const Listing = () => {
             <span className="font-normal text-slate-500 ml-2">The first image will be the cover(max 6)</span>
           </p>
           <div className="flex">
-              <input className="p-3 border border-gray-300 rounded w-full mr-5" type="file" id="images" accept="image/*"  multiple/>
-              <button className="p-3 border rounded border-green-700 text-green-700 uppercase hover:shadow-lg disabled:opacity-80">Upload</button>
+              <input onChange={(e)=>setFiles(e.target.files)} className="p-3 border border-gray-300 rounded w-full mr-5" type="file" id="images" accept="image/*"  multiple/>
+              <button onClick={handleFiles} type="button" className="p-3 border rounded border-green-700 text-green-700 uppercase hover:shadow-lg disabled:opacity-80">Upload</button>
           </div>
           <button className="text-white bg-slate-700 uppercase  rounded-lg p-3 mt-5 hover:opacity-95 disabled:opacity-80">Create listing</button>
         </div>
