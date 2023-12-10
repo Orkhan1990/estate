@@ -1,23 +1,11 @@
 import User from "../models/userModel.js";
 import {errorHandle}  from "../utils/errorHandler.js";
 import bcrypt from "bcrypt";
+import Listing from "../models/listingModel.js";
 
-export const createUser=async(req,res)=>{
-    try {
-        res.status(201).json("Created User")
-    } catch (error) {
-        
-    }
-}
 
-export const getUser=async (req,res)=>{
-    
-    try {
-        res.status(200).json("Salam Orxan")
-    } catch (error) {
-        
-    }
-}
+
+
 
 export const updateUser=async(req,res,next)=>{
     if(req.user.id!==req.params.id){
@@ -40,7 +28,7 @@ export const updateUser=async(req,res,next)=>{
     res.status(200).json(others)
         
     } catch (error) {
-        
+        next(error)
     }
 }
 
@@ -53,6 +41,23 @@ export const deleteUser=async(req,res,next)=>{
        res.clearCookie("access_token");
        res.status(201).json("User deleted successfuly!") 
     } catch (error) {
-        
+        next(error)
     }
 }
+
+export const userListings=async(req,res,next)=>{
+
+    if(req.user.id!==req.params.id){
+        return next(errorHandle(401,"You can only view your own listings!"))
+    }else{
+        try {
+          const listings=await Listing.find({userRef:req.params.id});
+          res.status(200).json(listings);
+        
+        } catch (error) {
+            next(error)
+        }
+    }
+   
+}
+

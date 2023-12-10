@@ -12,7 +12,7 @@ const SignUp = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3007/api/v1/signUp", {
+      const res = await fetch("http://localhost:3007/api/v1/auth/signUp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

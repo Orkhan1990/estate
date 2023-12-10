@@ -19,7 +19,7 @@ const SignIn = () => {
     e.preventDefault();
     dispatch(signInStart())
     try {
-      const res = await fetch("http://localhost:3007/api/v1/signIn", {
+      const res = await fetch("http://localhost:3007/api/v1/auth/signIn", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

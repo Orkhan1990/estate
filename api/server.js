@@ -6,6 +6,7 @@ import userRouter from "./routes/userRouter.js";
 import authRouter from "./routes/authRouter.js";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
+import listingRouter from "./routes/listingRouter.js"
 dotenv.config();
 
 const app=express();
@@ -21,8 +22,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
 
 // routers
-app.use("/api/v1/",userRouter);
-app.use("/api/v1/",authRouter)
+app.use("/api/v1/user",userRouter);
+app.use("/api/v1/auth",authRouter);
+app.use("/api/v1/listing",listingRouter)
 
 // middleware
 app.use((err,req,res,next)=>{

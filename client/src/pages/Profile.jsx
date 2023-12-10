@@ -39,12 +39,16 @@ const Profile = () => {
   const [fileError, setFileError] = useState(false);
   const [formData, setFormData] = useState({});
   const [ifUpdatedSuccess, setIfUpdatedSuccess] = useState(false);
+  const [userListing, setUserListing] = useState([]);
+  const [userListingError, setUserListingError] = useState(false);
 
   const dispatch = useDispatch();
   console.log(filePerc);
   console.log(fileError);
   console.log(error);
   console.log(currentUser);
+
+  //FUNCTIONS
 
   useEffect(() => {
     if (file) {
@@ -132,7 +136,7 @@ const Profile = () => {
   const handleSignOut = async () => {
     dispatch(signOutStart());
     try {
-      const res = await fetch("http://localhost:3007/api/v1/signOut");
+      const res = await fetch("http://localhost:3007/api/v1/auth/signOut");
       const data = await res.json();
       if (data.success === false) {
         dispatch(signOutFailure(data.message));
@@ -142,6 +146,39 @@ const Profile = () => {
       dispatch(signOutFailure(error.message));
     }
   };
+
+  const handleShowListing = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3007/api/v1/listings/${currentUser.rest._id}`
+      );
+      const data = await res.json();
+      if (data.success === false) {
+        setUserListingError(true);
+      }
+      setUserListing(data);
+    } catch (error) {
+      setUserListingError(error.message);
+    }
+  };
+
+  const handleDeleteListing=async(listingId)=>{
+    try {
+      const res=await fetch(`http://localhost:3007/api/v1/delete/${listingId}`,{
+        method:"DELETE"
+      });
+
+      const data=await res.json();
+      if(data.success===false){
+        console.log(data.message);
+      }
+
+      setUserListing((prev)=>prev.filter((listing)=>listing._id!==listingId));
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -201,9 +238,7 @@ const Profile = () => {
           {loading ? "Loading....." : "Update"}
         </button>
         <button className=" bg-green-700 text-white rounded-lg p-3 hover:opacity-95 disabled:opacity-80 uppercase">
-        <Link to="/listing">
-          Create Listing
-        </Link>
+          <Link to="/create-listing">Create Listing</Link>
         </button>
       </form>
       <div className="flex justify-between mt-5">
@@ -218,6 +253,34 @@ const Profile = () => {
       <p className="text-green-700 mt">
         {ifUpdatedSuccess ? "User information updated successfuly!" : ""}
       </p>
+      <button
+        type="button"
+        onClick={handleShowListing}
+        className="text-green-700 w-full my-3 hover:opacity-40 "
+      >
+        Show Listings
+      </button>
+      {userListing.length > 0 &&
+        userListing.map((list) => (
+          <div key={list._id} className="border flex p-3 items-center my-7">
+            <h1 className="text-center mt-7 text-2xl font-semibold">Your listings</h1>
+            <img src={list.imageUrls[0]} alt="image" className="w-16 h-16 object-contain"/>
+            <p className="truncate font-semibold">{list.description}</p>
+            <div className="flex flex-col gap-3">
+              <button onClick={()=>handleDeleteListing(list._id)} className="text-red-700 uppercase hover:opacity-50">
+                Delete
+              </button>
+              <button className="text-green-700 uppercase hover:opacity-50">
+                <Link to={`/edit-listing/${list._id}`}>
+                   Edit
+                </Link>
+              </button>
+            </div>
+          </div>
+        ))}
+      {userListingError && (
+        <p className="text-red-700 text-sm">{userListingError}</p>
+      )}
     </div>
   );
 };
