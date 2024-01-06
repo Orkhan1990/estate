@@ -2,6 +2,11 @@ import User from "../models/userModel.js";
 import jwtToken from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import {errorHandle} from "../utils/errorHandler.js";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+
 
 
 
@@ -40,6 +45,7 @@ export const signIn=async(req,res,next)=>{
 }
 
 export const google=async(req,res,next)=>{
+    console.log(req.body)
     try {
         const user=await User.findOne({email:req.body.email});
         if(user){
@@ -61,9 +67,6 @@ export const google=async(req,res,next)=>{
         const{password:pass,...rest}=newUser._doc;
         res.cookie("access_token",token,{httpOnly:true});
         res.status(201).json({rest,token})
-
-        
-       
         
     } catch (error) {
         next(error)

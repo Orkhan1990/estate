@@ -20,7 +20,7 @@ const OAuth = () => {
           const auth=getAuth(app);
           const result=await signInWithPopup(auth,provider);
           console.log(result);
-          const res=await fetch("http://localhost:3007/api/v1/google",
+          const res=await fetch("http://localhost:3007/api/v1/auth/google",
           {
              method:"POST",
              headers:{"Content-Type": "application/json"},
@@ -30,7 +30,7 @@ const OAuth = () => {
             dispatch(signInSuccess(data))
             setCookie("access_token",data.token)
             navigate('/')
-            // console.log(data);
+           console.log(data);
           console.log(cookie);
 
        } catch (error) {

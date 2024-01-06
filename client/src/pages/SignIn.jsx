@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link,useNavigate } from "react-router-dom";
-import { useCookies } from 'react-cookie';
 import { useDispatch,useSelector } from "react-redux";
 import { signInFailure,signInSuccess,signInStart } from "../features/userSlice";
 import OAuth from "../components/OAuth";
@@ -9,7 +8,6 @@ import OAuth from "../components/OAuth";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [cookie,setCookie]=useCookies(["access_token"]);
   const navigate=useNavigate();
   const dispatch=useDispatch();
   const {error,loading}=useSelector((state)=>state.user)
@@ -35,8 +33,6 @@ const SignIn = () => {
 
        dispatch(signInSuccess(data));
       navigate("/");
-      setCookie('access_token',data.token)
-      console.log(cookie);
     } catch (error) {
         dispatch(signInFailure(error.message))
     }
